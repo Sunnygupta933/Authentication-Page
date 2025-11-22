@@ -1,15 +1,15 @@
 <?php
-// db.php - Database connection helper
+require_once __DIR__ . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
-$host = 'localhost';
-$db   = 'authentication_db'; // Change to your database name
-$user = 'root'; // Default XAMPP user
-$pass = '';
+$host = $_ENV['DB_HOST'];
+$db   = $_ENV['DB_NAME'];
+$user = $_ENV['DB_USER'];
+$pass = $_ENV['DB_PASS'];
 
-// Create connection
 $conn = new mysqli($host, $user, $pass, $db);
 
-// Check connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
 }

@@ -23,14 +23,14 @@
                     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $email = $_POST['email'] ?? '';
                         $password = $_POST['password'] ?? '';
-                        // Brute-force protection lock file logic
+                        
                         $ip = $_SERVER['REMOTE_ADDR'];
                         $lockFile = __DIR__ . "/login_lock_" . md5($ip);
-                        // Delete the lock file for your IP before login attempt
+                        
                         if (file_exists($lockFile)) {
-                            unlink($lockFile); // This removes the lock file and resets failed attempts for your IP
+                            unlink($lockFile); 
                         }
-                        // Proceed with login
+                        
                         $result = login($email, $password);
                         if ($result['success']) {
                             header('Location: dashboard.php');
@@ -93,7 +93,7 @@ function togglePassword(fieldId, btn) {
         icon.classList.remove('bi-eye-slash');
         icon.classList.add('bi-eye');
     }
-    // Prevent button from taking focus and ensure input stays focused
+    
     setTimeout(function() {
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length);

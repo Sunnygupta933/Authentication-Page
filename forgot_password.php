@@ -42,19 +42,22 @@
                                 $update->bind_param('si', $reset_code, $id);
                                 $update->execute();
                                 $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset_password.php?code=$reset_code";
-                                // Use PHPMailer for sending email
+                                
+                                require_once __DIR__ . '/vendor/autoload.php';
+                                $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+                                $dotenv->load();
+
                                 $mail = new PHPMailer(true);
                                 try {
-                                    // SMTP configuration (example: Gmail)
+                                    
                                     $mail->isSMTP();
                                     $mail->Host = 'smtp.gmail.com';
-                                    $mail->SMTPAuth = true;
-                                    $mail->Username = 'sunnygupta.coder@gmail.com';
-                                    $mail->Password = 'qsdsibaickntlhll';
+                                    $mail->Username = $_ENV['SMTP_EMAIL'];
+                                    $mail->Password = $_ENV['SMTP_PASSWORD'];
                                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                                     $mail->Port = 587;
 
-                                    $mail->setFrom('your_gmail_address@gmail.com', 'Reset Password');
+                                    $mail->setFrom($_ENV['SMTP_EMAIL'], 'Reset Password');
                                     $mail->addAddress($email, $full_name);
                                     $mail->Subject = 'Your Password Reset Instructions';
                                     $mail->Body = "Dear $full_name,\n\nWe received a request to reset your password for your account.\n\nTo proceed, please click the secure link below:\n$reset_link\n\nIf you did not request this change, please ignore this email or contact support.\n\nBest regards,\nAuthentication Team";
@@ -78,14 +81,7 @@
                             <label for="email" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
-                        <!-- Example for future password field -->
-                        <!--
-                        <div class="mb-3 position-relative">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                            <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y" onclick="togglePassword('password', this)">Show</button>
-                        </div>
-                        -->
+                        
                         <button type="submit" class="btn btn-primary w-100">Send Reset Link</button>
                     </form>
                     <div class="mt-3 text-center">

@@ -1,5 +1,5 @@
 <?php
-// auth.php - Authentication helper functions
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -22,7 +22,7 @@ function login($email, $password) {
             return ['success' => false, 'error' => 'Please verify your email before logging in.'];
         }
         if ($hashed_password !== null && password_verify($password, $hashed_password)) {
-            session_regenerate_id(true); // Session security
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $id;
             return ['success' => true];
         } else {

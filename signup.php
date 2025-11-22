@@ -26,6 +26,9 @@ use PHPMailer\PHPMailer\Exception;
                 <div class="card-body">
                     <?php
                     require_once 'db.php';
+                    require_once __DIR__ . '/vendor/autoload.php';
+                    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+                    $dotenv->load();
                     $error = '';
                     $success = '';
                     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,15 +38,15 @@ use PHPMailer\PHPMailer\Exception;
                         $confirm_password = $_POST['confirm_password'] ?? '';
                         $terms = isset($_POST['terms']);
 
-                        // For repopulating fields
+                        
                         $old_full_name = $full_name;
                         $old_email = $email;
                         $old_terms = $terms;
-                        // If password error, clear password fields
+                        
                         $old_password = '';
                         $old_confirm_password = '';
 
-                        // Validate fields
+                        
                         if (!$full_name || !$email || !$password || !$confirm_password) {
                             $error = 'All fields are required.';
                         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -57,7 +60,7 @@ use PHPMailer\PHPMailer\Exception;
                         } elseif (!$terms) {
                             $error = 'You must accept the terms & conditions.';
                         } else {
-                            // Check if email exists
+                            
                             $stmt = $conn->prepare('SELECT id FROM users WHERE email = ?');
                             $stmt->bind_param('s', $email);
                             $stmt->execute();
@@ -65,37 +68,37 @@ use PHPMailer\PHPMailer\Exception;
                             if ($stmt->num_rows > 0) {
                                 $error = 'Email already exists.';
                             } else {
-                                // Create user (email not verified yet)
+                                
                                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                                // Generate 6-digit OTP
+                                
                                 $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                                $verification_code = $otp; // Store OTP in verification_code field
+                                $verification_code = $otp; 
                                 $stmt = $conn->prepare('INSERT INTO users (full_name, email, password, email_verified, verification_code) VALUES (?, ?, ?, 0, ?)');
                                 $stmt->bind_param('ssss', $full_name, $email, $hashed_password, $verification_code);
                                 if ($stmt->execute()) {
-                                    // Send verification email using PHPMailer with OTP
+                                    
                                     $verify_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/verify_email.php?code=$verification_code";
                                     $subject = "Verify your email";
-                                    $message = "Hi $full_name,\n\nThank you for signing up!\n\nYour One-Time Password (OTP) is: $otp\n\nYou can verify your email by:\n1. Using the OTP code: $otp\n2. Or clicking this link: $verify_link\n\nThe OTP is valid for 10 minutes.\n\nIf you didn't create this account, please ignore this email.";
+                                    $message = "Hi $full_name,\n\nThank you for signing up!\n\nYour One-Time Password (OTP) is: $otp\n\nYou can verify your email by:\n1. Using the OTP code: $otp\n2. Or clicking this link: $verify_link\n\nThe OTP is valid for 10 minutes.\n\nBest Regards\nAuthentication Page";
 
                                     $mail = new PHPMailer(true);
                                     try {
                                         $mail->isSMTP();
                                         $mail->Host = 'smtp.gmail.com';
                                         $mail->SMTPAuth = true;
-                                        $mail->Username = 'sunnygupta.coder@gmail.com'; // Your Gmail address
-                                        $mail->Password = 'qsdsibaickntlhll';    // Gmail App Password
+                                        $mail->Username = $_ENV['SMTP_EMAIL']; 
+                                        $mail->Password = $_ENV['SMTP_PASSWORD'];    
                                         $mail->SMTPSecure = 'tls';
                                         $mail->Port = 587;
 
-                                        $mail->setFrom('your_gmail@gmail.com', 'Verify-Email');
+                                        $mail->setFrom($_ENV['SMTP_EMAIL'], 'Verify-Email');
                                         $mail->addAddress($email, $full_name);
                                         $mail->Subject = $subject;
                                         $mail->Body    = $message;
 
                                         $mail->send();
                                         $success = 'Account created! Please check your email for the OTP code to verify your account.';
-                                        // Store email in session to redirect to verification
+                                        
                                         if (session_status() === PHP_SESSION_NONE) {
                                             session_start();
                                         }
@@ -148,7 +151,7 @@ use PHPMailer\PHPMailer\Exception;
                             </div>
                         </div>
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required <?= !empty($old_terms) ? 'checked' : '' ?>>
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required <?= !empty($old_terms) ? 'checked' : '' ?> >
                             <label class="form-check-label" for="terms">I accept the <a href="#">terms & conditions</a></label>
                         </div>
                         <button type="submit" class="btn btn-success w-100">Sign Up</button>
@@ -175,7 +178,7 @@ function togglePassword(fieldId, btn) {
         icon.classList.remove('bi-eye-slash');
         icon.classList.add('bi-eye');
     }
-    // Prevent button from taking focus and ensure input stays focused
+    
     setTimeout(function() {
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length);

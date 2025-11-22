@@ -23,6 +23,9 @@
                     require 'phpmailer/src/Exception.php';
                     use PHPMailer\PHPMailer\PHPMailer;
                     use PHPMailer\PHPMailer\Exception;
+                    require_once __DIR__ . '/vendor/autoload.php';
+                    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+                    $dotenv->load();
                     $message = '';
                     $show_form = true;
                     if (isset($_GET['code'])) {
@@ -48,7 +51,7 @@
                                     $update = $conn->prepare('UPDATE users SET password = ?, reset_code = NULL WHERE id = ?');
                                     $update->bind_param('si', $hashed_password, $id);
                                     if ($update->execute()) {
-                                        // Get user email and name
+                                        
                                         $user_stmt = $conn->prepare('SELECT email, full_name FROM users WHERE id = ?');
                                         $user_stmt->bind_param('i', $id);
                                         $user_stmt->execute();
@@ -66,12 +69,12 @@
                                             $mail->isSMTP();
                                             $mail->Host = 'smtp.gmail.com';
                                             $mail->SMTPAuth = true;
-                                            $mail->Username = 'sunnygupta.coder@gmail.com';
-                                            $mail->Password = 'qsdsibaickntlhll';
+                                            $mail->Username = $_ENV['SMTP_EMAIL'];
+                                            $mail->Password = $_ENV['SMTP_PASSWORD'];
                                             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                                             $mail->Port = 587;
 
-                                            $mail->setFrom('your_gmail_address@gmail.com', 'Account Security Team');
+                                            $mail->setFrom($_ENV['SMTP_EMAIL'], 'Account Security Team');
                                             $mail->addAddress($user_email, $user_name);
                                             $mail->Subject = 'Password Successfully Reset';
                                             $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset_password.php?code=$code";
@@ -79,7 +82,7 @@
 
                                             $mail->send();
                                         } catch (Exception $e) {
-                                            // Optionally log or handle email error
+                                            
                                         }
                                         $message = 'Password reset successful! You can now log in.';
                                         $show_form = false;
@@ -146,7 +149,7 @@ function togglePassword(fieldId, btn) {
         icon.classList.remove('bi-eye-slash');
         icon.classList.add('bi-eye');
     }
-    // Prevent button from taking focus and ensure input stays focused
+    
     setTimeout(function() {
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length);

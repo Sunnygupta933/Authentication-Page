@@ -1,12 +1,12 @@
 <?php
-// verify_email.php - Email verification handler
+
 require_once 'db.php';
 
 $verified = false;
 $message = '';
 $show_otp_form = false;
 
-// Handle OTP verification via POST
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['otp'])) {
     $otp = trim($_POST['otp']);
     if (strlen($otp) === 6 && ctype_digit($otp)) {
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['otp'])) {
         $show_otp_form = true;
     }
 }
-// Handle link verification via GET
+
 elseif (isset($_GET['code'])) {
     $code = $_GET['code'];
     $stmt = $conn->prepare('SELECT id FROM users WHERE verification_code = ? AND email_verified = 0');
@@ -109,20 +109,20 @@ elseif (isset($_GET['code'])) {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Auto-focus and format OTP input
+
 document.addEventListener('DOMContentLoaded', function() {
     const otpInput = document.getElementById('otp');
     if (otpInput) {
         otpInput.focus();
-        // Only allow numbers
+        
         otpInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
-        // Auto-submit when 6 digits are entered
+        
         otpInput.addEventListener('input', function(e) {
             if (this.value.length === 6) {
-                // Optional: auto-submit after a short delay
-                // setTimeout(() => this.form.submit(), 500);
+                
+                
             }
         });
     }
