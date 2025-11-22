@@ -6,7 +6,7 @@ This project provides a basic user authentication system.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/AuthenticationPage.git
+    git clone https://github.com/Sunnygupta933/Authentication-Page.git
     cd AuthenticationPage
     ```
 
